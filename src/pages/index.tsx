@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import { Post } from '../types'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
+import axios from 'axios'
+import { useRouter } from "next/router"
 
 type Props = {
   posts: Post[];
@@ -11,8 +13,6 @@ type Props = {
 export async function getStaticProps() {
   const res = await fetch("http://localhost:3001/api/v1/posts");
   const posts = await res.json();
-
-  console.log(posts)
 
   return {
     props: {
@@ -25,6 +25,18 @@ export async function getStaticProps() {
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home({ posts }: Props) {
+  const router = useRouter();
+
+  const handleDelete = async (postId: string) => {
+    try {
+      await axios.delete(`http://localhost:3001/api/v1/posts/${postId}`);
+
+      router.reload();
+    } catch (err) {
+      alert("削除に失敗しました")
+    }
+  }
+
   return (
     <>
       <div className={styles.homeContainer}>
@@ -40,8 +52,10 @@ export default function Home({ posts }: Props) {
                 <h2>{post.title}</h2>
               </Link>
               <p>{post.content}</p>
-              <button className={styles.editButton}>Edit</button>
-              <button className={styles.deleteButton}>Delete</button>
+              <Link href={`/edit-post/${post.id}`}>
+                <button className={styles.editButton}>Edit</button>
+              </Link>
+              <button className={styles.deleteButton} onClick={() => handleDelete(post.id)}>Delete</button>
             </div>
           ))}
         </div>

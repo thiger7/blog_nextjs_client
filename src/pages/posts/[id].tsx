@@ -24,8 +24,6 @@ export async function getStaticProps({params}: {params: { id: string }}) {
   const res = await fetch(`http://localhost:3001/api/v1/posts/${params.id}`);
   const post = await res.json();
 
-  console.log(post)
-
   return {
     props: {
       post,
